@@ -31,7 +31,7 @@ MyServer *myServer = NULL;
 WiFiManager wm;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   // initialisation de la pin de la led et s'assurer qu'elle est fermee au demarrage
   pinMode(LedRed, OUTPUT);
   pinMode(LedYellow, OUTPUT);
