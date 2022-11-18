@@ -1,13 +1,20 @@
+#include <iostream>
+#include <string>
 #include <Arduino.h>
-#include "MyServer.h"
-//#include <HTTPClient.h>
+#include <ArduinoJson.h>
+#include "myFunctions.cpp"
+using namespace std;
+#include <HTTPClient.h>
 #include <WiFiManager.h>
+#define WEBSERVER_H
+#include "MyDHT.h"
+#include "MyServer.h"
+
 
 float tempAct=0;
 // variables et constantes pour dht22
 const unsigned int DHTPIN = 15; // GPIO utilisee par le DTH
 #define DHTTYPE DHT22           // Modele du DHT
-#include "MyDHT.h"
 MyDHT *dht;
 
 // variables et constantes pour led
