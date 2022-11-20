@@ -1,9 +1,20 @@
-/*
- * MyTemp.cpp
- *
- *  Created on : 04/05/22
- *  @Author: Samy
- */
+/* 
+    @file           : MyDHT.cpp
+    @author         : Samy Bennabi
+    @version        : 1.0   04/05/22
+    @description    : Fonctions de la classe du senseur DHT
+
+    platform = ESP32
+    OS = Arduino
+    Langage : C++
+
+    Historique des versions
+        Version     Date        Auteur      Description
+        1.0         04/05/22    Samy        Premiere version du logiciel
+        1.1         26/05/22    Samy        Ajout des fonctions pour humidité
+        1.2         19/11/22    Samy        Retrait de fonctions inutiles
+
+**/
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
@@ -15,30 +26,6 @@ MyDHT::MyDHT(uint8_t DHTPIN, uint8_t DHTTYPE) // constructeur
     dht->begin();
     dht->temperature().getSensor(&sensor);
     dht->humidity().getSensor(&sensor);
-};
-
-// pour voir les details des senseurs temperature et humidité
-void MyDHT::printSensorDetails()
-{
-    dht->temperature().getSensor(&sensor);
-    Serial.println(F("------------------------------------"));
-    Serial.println(F("Temperature Sensor"));
-    Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
-    Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
-    Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
-    Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("°C"));
-    Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("°C"));
-    Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("°C"));
-    Serial.println(F("------------------------------------"));
-    dht->humidity().getSensor(&sensor);
-    Serial.println(F("Humidity Sensor"));
-    Serial.print  (F("Sensor Type: ")); Serial.println(sensor.name);
-    Serial.print  (F("Driver Ver:  ")); Serial.println(sensor.version);
-    Serial.print  (F("Unique ID:   ")); Serial.println(sensor.sensor_id);
-    Serial.print  (F("Max Value:   ")); Serial.print(sensor.max_value); Serial.println(F("%"));
-    Serial.print  (F("Min Value:   ")); Serial.print(sensor.min_value); Serial.println(F("%"));
-    Serial.print  (F("Resolution:  ")); Serial.print(sensor.resolution); Serial.println(F("%"));
-    Serial.println(F("------------------------------------"));
 };
 
 // obtenir la valeur de la temperature
@@ -66,33 +53,5 @@ float MyDHT::getHumidity()
     }
     else {
         return event.relative_humidity;
-    }
-};
-
-// afficher la temparature dans le terminal
-void MyDHT::printTemp()
-{
-    dht->temperature().getEvent(&event);
-    if (isnan(event.temperature)) {
-        Serial.println(F("Error reading temperature!"));
-    }
-    else {
-        Serial.print(F("Temperature: "));
-        Serial.print(event.temperature);
-        Serial.println(F("°C"));
-    }
-};
-
-// afficher l`humidité dans le terminal
-void MyDHT::printHumidity()
-{
-    dht->humidity().getEvent(&event);
-    if (isnan(event.relative_humidity)) {
-        Serial.println(F("Error reading humidity!"));
-    }
-    else {
-        Serial.print(F("Humidity: "));
-        Serial.print(event.relative_humidity);
-        Serial.println(F("%"));
     }
 };

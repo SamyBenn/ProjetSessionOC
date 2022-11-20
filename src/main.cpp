@@ -40,16 +40,20 @@ void setup() {
   digitalWrite(LedYellow, LOW);
   digitalWrite(LedGreen, LOW);
 
-  wm.autoConnect(SSID, PASSWORD);
-  myServer = new MyServer(80);
-  myServer->initAllRoutes();
   // initialisation de l'objet senseur de temperature
   dht = new MyDHT(DHTPIN, DHTTYPE);
+
+  if (!wm.autoConnect(SSID, PASSWORD))
+  {Serial.println("Erreur de connexion.");}
+  else
+  {Serial.println("Connexion Établie.");}
+  //myServer = new MyServer(80);
+  //myServer->initAllRoutes();
 }
 
 void loop() {
   //tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
   //dht->printTemp();      // afficher la temperature dans la console
 
-  delay(2000);
+  //delay(2000);
 }
