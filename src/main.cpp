@@ -8,6 +8,7 @@ using namespace std;
 #include <WiFiManager.h>
 #define WEBSERVER_H
 #include "MyDHT.h"
+#include "MyOled.h"
 #include "MyServer.h"
 
 
@@ -22,6 +23,12 @@ MyDHT *dht;
 #define LedYellow 14   // GPIO utilisee par la led jaune
 #define LedGreen 12   // GPIO utilisee par la led verte
 bool ledOn = false; // pour garder en memoire l'etat de la led
+
+// Oled
+MyOled *myOled = NULL;
+const unsigned int SCREEN_WIDTH = 128; // OLED display width, in pixels
+const unsigned int SCREEN_HEIGHT = 64; // OLED display height, in pixels
+const unsigned int OLED_RESET = 4;    // Reset pin # (or -1 if sharing Arduino reset pin)
 
 // constantes pour la connexion wifi
 const char *SSID = "securewifi";
@@ -42,6 +49,12 @@ void setup() {
 
   // initialisation de l'objet senseur de temperature
   dht = new MyDHT(DHTPIN, DHTTYPE);
+
+  myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
+  myOled->init(100);
+  myOled->clearDisplay();
+  myOled->printIt(1, 2, "Station meteo",true);
+  myOled->printIt(15, 20, "Initialisation...",true);
 
   if (!wm.autoConnect(SSID, PASSWORD))
   {Serial.println("Erreur de connexion.");}
