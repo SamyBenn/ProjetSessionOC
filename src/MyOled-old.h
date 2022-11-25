@@ -1,51 +1,14 @@
-/**
-    Class MyOled : Gestion d'un écran Oled Utilisant un GPIO d'un contrôleur ESP32
-    @file MyOled.h (Héritage : Adafruit_SSD1306)
-    @author Alain Dubé
-    @version 1.0 17/03/21  
-    
-    Historique des versions   
-                            Versions  Date      Auteur      Description
-                            1.0      22/05/21   Ald         Première version de la classe
-                            1.1      28/05/21   ALD         Ajout de la méthode : veilleExit()
-                            
-    platform = espressif32
-    board = esp32doit-devkit-v1
-    framework = arduino
-    lib_deps = 
-        adafruit/Adafruit GFX Library @ ^1.10.1
-        adafruit/Adafruit SSD1306 @ ^2.4.0
-        adafruit/Adafruit NeoPixel @ ^1.7.0
-    Autres librairies (à copier dans le répertoire lib)
-        Aucune
-    Résolution 128 x 64
-            Protocole I2C, Adresse : 0x3C (défaut)
-            GPIO21 : SDA
-            GPIO22 : SCL
-    Exemple d'utilisation (ainsi que toutes les commandes héritées de la Librarie Adafruit)
-        #include "MyOled.h"
-        MyOled *myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
-        myOled->init(OLED_I2C_ADDRESS);
-        myOled->veilleDelay(30); //En secondes
-
-        myOledViewWorking = new MyOledViewWorking();
-        myOledViewWorking->setNomDuSysteme("nomDuSysteme");
-        myOledViewWorking->setIpDuSysteme(WiFi.localIP().toString().c_str());
-        myOledViewWorking->setStatusDuSysteme("Four OK");
-        myOled->displayView(myOledViewWorking);
-
-        if (myOled->veilleCheck()) cout << "\nEst en veille";
-
-        loop:
-            myOled->veilleCheck();
-            myOled->updateCurrentView(myOledViewWorking); //Pour les animations dans la vue si utilisées
-
-**/
+/* VeuilleuseOled.h */
+/* Copyright (C) 2020 Alain Dube
+ * All rights reserved.
+ *
+ * Faire la gestion de l'écran Oled
+ * 
+ * */
 #ifndef MYOLED_H
 #define MYOLED_H
 
 #include <string>
-#include "MyOledView.h"
 
 //Logo Ecole Du Web GROS
 // (Horizontal) byte array of bitmap :
@@ -133,6 +96,7 @@ const unsigned char PushMan24x48_7[] = {
     0x00, 0x04, 0x01, 0x00, 0x04, 0x01, 0x00, 0x08, 0x01, 0x00, 0x10, 0x01, 0x00, 0x20, 0x01, 0x00};
 
 
+
 //Pour la gestion du Oled
 //lib_deps = adafruit / Adafruit SSD1306 @^2.4.0
 #include <Adafruit_GFX.h>
@@ -142,37 +106,34 @@ const unsigned char PushMan24x48_7[] = {
 //lib_deps = bblanchon/ArduinoJson @ ^6.17.2
 //#include <ArduinoJson.h>
 
-class MyOled : public Adafruit_SSD1306 {
-    public:
+class MyOled : public Adafruit_SSD1306
+{
+public:
+    int init(int displaySplashTime = 0, uint8_t addrI2C = 0x3C);  //Parfois 3D
+    void veilleOn(bool active);
 
-        int init(uint8_t addrI2C = 0x3C, bool displaySplash = true);  //Parfois 3D
-        void veilleOn(bool active);
+    MyOled(TwoWire *twi, uint8_t RST = 4, uint8_t rawHeight = 64, uint8_t rawWidth = 128) : Adafruit_SSD1306(rawWidth, rawHeight, twi, RST){ };
+    void printSpecialChar(std::string spacialCaractere, int makeDelaySecondes = 0);
+    void printIt(std::string toDisplay, bool displayAfter, int makeDelaySecondes = 0);
+    void printIt(int posx, int posy, std::string toDisplay, bool displayAfter, int makeDelaySecondes = 0);
 
-        MyOled(TwoWire *twi, uint8_t RST = 4, uint8_t rawHeight = 64, uint8_t rawWidth = 128) : Adafruit_SSD1306(rawWidth, rawHeight, twi, RST){ };
-        void printSpecialChar(std::string spacialCaractere, int makeDelaySecondes = 0);
-        void printIt(std::string toDisplay, bool displayAfter, int makeDelaySecondes = 0);
-        void printIt(int posx, int posy, std::string toDisplay, bool displayAfter, int makeDelaySecondes = 0);
+    //int DisplayScreenJson(std::string jsonData);
 
-        //void afficherConfigWifi(String nomDuSysteme, String ssIDRandom, String PASSRandom);
+    bool veilleCheck();
+    void veilleDelay(int nbreSecondes);
 
-        bool veilleCheck(bool debugMe = false);
-        void veilleDelay(int nbreSecondes);
-        void veilleExit();
+    
 
-        void displayView(MyOledView *view);
-        void updateCurrentView(MyOledView *view); //Pour les animations dans la vue si utilisées
+private:
+    /*static*/ unsigned char *PushMan24x48Pointers[7];
+    void displaySplash(int makeDelaySecondes);
 
-    private:
-        unsigned char *PushMan24x48Pointers[7];
-        void displaySplash(int makeDelaySecondes);
- 
-        static void vATaskSecondCount(void *pvParameters);
-        static int veilleTimeLapse;
-        static MyOledView *currentView;
-        int veilleNbreSecondes = -1;
-        bool veilleActif = false;
+    static void vATaskSecondCount(void *pvParameters);
+    static int veilleTimeLapse;
+    int veilleNbreSecondes = -1;
+    bool veilleActif = false;
 
-        String lastError;
+    String lastError;
     
 };
 #endif

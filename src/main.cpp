@@ -8,7 +8,7 @@ using namespace std;
 #include <WiFiManager.h>
 #define WEBSERVER_H
 #include "MyDHT.h"
-#include "MyOled.h"
+//#include "MyOled.h"
 #include "MyServer.h"
 
 // variables et constantes pour led
@@ -25,11 +25,12 @@ const unsigned int GPIODHT = 15; // GPIO utilisee par le DTH
 MyDHT *dht;
 
 // Oled
+/*
 MyOled *myOled = NULL;
 const unsigned int SCREEN_WIDTH = 128; // OLED display width, in pixels
 const unsigned int SCREEN_HEIGHT = 64; // OLED display height, in pixels
 const unsigned int OLED_RESET = 4;    // Reset pin # (or -1 if sharing Arduino reset pin)
-
+*/
 // constantes pour la connexion wifi
 const char *SSID = "securewifi";
 const char *PASSWORD = "securiti";
@@ -49,31 +50,33 @@ void setup() {
 
   // initialisation de l'objet senseur de temperature
   dht = new MyDHT(GPIODHT, DHTTYPE);
+  tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
+  Serial.print("temperature: ");
+  Serial.println(tempAct);      // afficher la temperature dans la console
 
-  myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
-  myOled->init(100);
-  myOled->clearDisplay();
-  myOled->printIt(1, 2, "Station meteo",true);
-  myOled->printIt(15, 20, "Initialisation...",true);
+  //myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
+  //myOled->init(100);
 
-  if (!wm.autoConnect(SSID, PASSWORD))
+
+  /*if (!wm.autoConnect(SSID, PASSWORD))
   {Serial.println("Erreur de connexion.");}
   else
-  {Serial.println("Connexion Établie.");}
+  {Serial.println("Connexion Établie.");}*/
   //myServer = new MyServer(80);
   //myServer->initAllRoutes();
 }
 
 void loop() {
-  //tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
-  //dht->printTemp();      // afficher la temperature dans la console
+  tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
+  Serial.print("temperature: ");
+  Serial.println(tempAct);      // afficher la temperature dans la console
   
-  sprintf(strTemperature, "%g C", tempAct);
+  /*sprintf(strTemperature, "%g C", tempAct);
   myOled->clearDisplay();
   myOled->printIt(1, 2, "Patate: ",true);
-  myOled->printIt(15, 2, "Chepo",true);
+  myOled->printIt(60, 2, "Chepo",true);
   myOled->printIt(8, 36, "Temp: ",true);
-  myOled->printIt(40, 36, strTemperature,true);
+  myOled->printIt(40, 36, strTemperature,true);*/
 
-  //delay(2000);(rduct)
+  delay(2000);//(rduct)
 }
