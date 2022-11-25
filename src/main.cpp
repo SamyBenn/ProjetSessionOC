@@ -8,7 +8,10 @@ using namespace std;
 #include <WiFiManager.h>
 #define WEBSERVER_H
 #include "MyDHT.h"
-//#include "MyOled.h"
+#include "MyOled.h"
+#include "MyOledView.h"
+#include "MyOledViewWifiAp.h"
+#include "MyOledViewWorking.h"
 #include "MyServer.h"
 
 // variables et constantes pour led
@@ -25,18 +28,23 @@ const unsigned int GPIODHT = 15; // GPIO utilisee par le DTH
 MyDHT *dht;
 
 // Oled
-/*
-MyOled *myOled = NULL;
+
 const unsigned int SCREEN_WIDTH = 128; // OLED display width, in pixels
 const unsigned int SCREEN_HEIGHT = 64; // OLED display height, in pixels
 const unsigned int OLED_RESET = 4;    // Reset pin # (or -1 if sharing Arduino reset pin)
-*/
+MyOled *myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
+MyOledViewWifiAp *myOledViewWifiAp= NULL;
+
+
+
 // constantes pour la connexion wifi
+
 const char *SSID = "securewifi";
 const char *PASSWORD = "securiti";
 
-MyServer *myServer = NULL;
-WiFiManager wm;
+
+//MyServer *myServer = NULL;
+//WiFiManager wm;
 
 void setup() {
   Serial.begin(115200);
@@ -48,14 +56,27 @@ void setup() {
   digitalWrite(GPIOLedYellow, LOW);
   digitalWrite(GPIOLedGreen, LOW);
 
+  String ssIDRandom, PASSRandom;
+  String stringRandom;
+  stringRandom = get_random_string(4).c_str();
+  ssIDRandom = SSID;
+  ssIDRandom = ssIDRandom + stringRandom;
+  stringRandom = get_random_string(4).c_str();
+  PASSRandom = PASSWORD;
+  PASSRandom = PASSRandom + stringRandom;
+
   // initialisation de l'objet senseur de temperature
   dht = new MyDHT(GPIODHT, DHTTYPE);
   tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
   Serial.print("temperature: ");
   Serial.println(tempAct);      // afficher la temperature dans la console
 
-  //myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
-  //myOled->init(100);
+  // Oled
+  myOledViewWifiAp = new MyOledViewWifiAp();
+  myOledViewWifiAp->setNomDuSysteme(ssIDRandom.c_str());
+  myOledViewWifiAp->setSsIDDuSysteme(ssIDRandom.c_str());
+  myOledViewWifiAp->setPassDuSysteme(PASSRandom.c_str());
+  myOled->displayView(myOledViewWifiAp);
 
 
   /*if (!wm.autoConnect(SSID, PASSWORD))
@@ -71,12 +92,6 @@ void loop() {
   Serial.print("temperature: ");
   Serial.println(tempAct);      // afficher la temperature dans la console
   
-  /*sprintf(strTemperature, "%g C", tempAct);
-  myOled->clearDisplay();
-  myOled->printIt(1, 2, "Patate: ",true);
-  myOled->printIt(60, 2, "Chepo",true);
-  myOled->printIt(8, 36, "Temp: ",true);
-  myOled->printIt(40, 36, strTemperature,true);*/
 
   delay(2000);//(rduct)
 }
