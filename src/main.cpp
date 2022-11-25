@@ -28,12 +28,11 @@ const unsigned int GPIODHT = 15; // GPIO utilisee par le DTH
 MyDHT *dht;
 
 // Oled
-
+MyOled *myOled;
+MyOledViewWifiAp *myOledViewWifiAp;
 const unsigned int SCREEN_WIDTH = 128; // OLED display width, in pixels
 const unsigned int SCREEN_HEIGHT = 64; // OLED display height, in pixels
 const unsigned int OLED_RESET = 4;    // Reset pin # (or -1 if sharing Arduino reset pin)
-MyOled *myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
-MyOledViewWifiAp *myOledViewWifiAp= NULL;
 
 
 
@@ -72,10 +71,14 @@ void setup() {
   Serial.println(tempAct);      // afficher la temperature dans la console
 
   // Oled
+  myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
+  myOled->init();
+  myOled->veilleDelay(30); //En secondes
   myOledViewWifiAp = new MyOledViewWifiAp();
   myOledViewWifiAp->setNomDuSysteme(ssIDRandom.c_str());
   myOledViewWifiAp->setSsIDDuSysteme(ssIDRandom.c_str());
   myOledViewWifiAp->setPassDuSysteme(PASSRandom.c_str());
+
   myOled->displayView(myOledViewWifiAp);
 
 

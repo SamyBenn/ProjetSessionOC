@@ -1,8 +1,8 @@
 /**
     Class MyOled : Gestion d'un écran Oled Utilisant un GPIO d'un contrôleur ESP32
-    @file MyOled.h (Héritage : Adafruit_SSD1306)
+    @file MyOledViewWifiAp.h (Heritage : MyOledView)
     @author Samy Bennabi
-    @version 1.0 17/03/21  
+    @version 1.0 24/11/22  
     
     Historique des versions   
                             Versions    Date      Auteur      Description

@@ -1,6 +1,6 @@
 /**
-    Class MyOled : Gestion d'un écran Oled Utilisant un GPIO d'un contrôleur ESP32
-    @file MyOled.h (Héritage : Adafruit_SSD1306)
+    Class MyOledViewWorkingCOLD : Gestion d'un écran Oled Utilisant un GPIO d'un contrôleur ESP32
+    @file MyOledViewWorkingCOLD.h (Heritage : MyOledViewWorking)
     @author Samy Bennabi
     @version 1.0 17/03/21  
     
@@ -23,3 +23,14 @@
             GPIO22 : SCL
 
 **/
+
+#ifndef MYOLEDVIEWWORKINKCOLD_H
+#define MYOLEDVIEWWORKINKCOLD_H
+#include "MyOledViewWorking.h"
+
+class MyOledViewWorkingCOLD : public MyOledViewWorking{
+    private:
+        void display( Adafruit_SSD1306 *adafruit);
+};
+
+#endif

@@ -54,7 +54,7 @@ int MyOled::init(uint8_t addrI2C, bool displaySplashPlease) {
     setCursor(1, 1);
     display();
 
-    if(displaySplashPlease) displaySplash(1000);
+    //if(displaySplashPlease) displaySplash(1000);
 
     xTaskCreate(vATaskSecondCount, "vATask Loop", 10000, NULL, 1, NULL);
 
