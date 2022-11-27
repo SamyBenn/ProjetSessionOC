@@ -31,6 +31,7 @@
 class MyOledViewWorkingCOLD : public MyOledViewWorking{
     private:
         void display( Adafruit_SSD1306 *adafruit);
+        void update( Adafruit_SSD1306 *adafruit);
 };
 
 #endif

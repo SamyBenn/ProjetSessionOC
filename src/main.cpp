@@ -10,8 +10,13 @@ using namespace std;
 #include "MyDHT.h"
 #include "MyOled.h"
 #include "MyOledView.h"
+#include "MyOledViewErrorWifiConnexion.h"
+#include "MyOledViewInitialisation.h"
 #include "MyOledViewWifiAp.h"
 #include "MyOledViewWorking.h"
+#include "MyOledViewWorkingCOLD.h"
+#include "MyOledViewWorkingHEAT.h"
+#include "MyOledViewWorkingOFF.h"
 #include "MyServer.h"
 
 // variables et constantes pour led
@@ -29,6 +34,9 @@ MyDHT *dht;
 
 // Oled
 MyOled *myOled;
+MyOledViewWorking *myoledViewWorking;
+MyOledViewWorkingOFF *myoledViewWorkingOFF;
+MyOledViewWorkingHEAT *myoledViewWorkingHEAT;
 MyOledViewWifiAp *myOledViewWifiAp;
 const unsigned int SCREEN_WIDTH = 128; // OLED display width, in pixels
 const unsigned int SCREEN_HEIGHT = 64; // OLED display height, in pixels
@@ -79,7 +87,12 @@ void setup() {
   myOledViewWifiAp->setSsIDDuSysteme(ssIDRandom.c_str());
   myOledViewWifiAp->setPassDuSysteme(PASSRandom.c_str());
 
-  myOled->displayView(myOledViewWifiAp);
+  myoledViewWorking = new MyOledViewWorking();
+  myoledViewWorking->init("1");
+  myoledViewWorkingOFF = new MyOledViewWorkingOFF();
+  myoledViewWorkingHEAT = new MyOledViewWorkingHEAT();
+  myOled->displayView(myoledViewWorkingHEAT);
+  //myOled->displayView(myOledViewWifiAp);
 
 
   /*if (!wm.autoConnect(SSID, PASSWORD))

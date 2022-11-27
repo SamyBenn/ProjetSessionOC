@@ -23,3 +23,19 @@
             GPIO22 : SCL
 
 **/
+#ifndef MYOLEDVIEWERRORWIFICONNEXION_H
+#define MYOLEDVIEWERRORWIFICONNEXION_H
+#include "MyOledView.h"
+
+class MyOledViewErrorWifiConnexion : public MyOledView{
+    public:
+        void setNomDuSysteme(std::string val);
+
+    private:
+        std::string nomDuSysteme;
+
+        void display( Adafruit_SSD1306 *adafruit);
+        void update(Adafruit_SSD1306 *adafruit);
+};
+
+#endif

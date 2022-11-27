@@ -10,7 +10,6 @@
 using namespace std;
 
 void MyOledViewWorking::init(std::string _id) {
-    Serial.println("Init dans MyOledViewWorking");
     MyOledView::init(_id);
 
     Fire24x24Pointers[0] = const_cast<unsigned char *>(&Fire24x24_1[0]);
@@ -39,7 +38,6 @@ void MyOledViewWorking::update(Adafruit_SSD1306 *adafruit){
     }
 
 void MyOledViewWorking::display( Adafruit_SSD1306 *adafruit) {
-    Serial.println("MyOledViewWorking");
     adafruit->setTextColor(WHITE);
 
     adafruit->clearDisplay();
