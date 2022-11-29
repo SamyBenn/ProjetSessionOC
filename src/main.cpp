@@ -19,6 +19,8 @@ using namespace std;
 #include "MyOledViewWorkingOFF.h"
 #include "MyServer.h"
 
+bool FourOn = false;
+
 // variables et constantes pour led
 #define GPIOLedRed 27   // GPIO utilisee par la led rouge
 #define GPIOLedYellow 14   // GPIO utilisee par la led jaune
@@ -34,9 +36,11 @@ MyDHT *dht;
 
 // Oled
 MyOled *myOled;
-MyOledViewWorking *myoledViewWorking;
-MyOledViewWorkingOFF *myoledViewWorkingOFF;
-MyOledViewWorkingHEAT *myoledViewWorkingHEAT;
+MyOledViewWorking *myOledViewWorking;
+MyOledViewErrorWifiConnexion * myOledViewErrorWifiConnexion;
+MyOledViewInitialisation *myOledViewInitialisation;
+MyOledViewWorkingOFF *myOledViewWorkingOFF;
+MyOledViewWorkingHEAT *myOledViewWorkingHEAT;
 MyOledViewWifiAp *myOledViewWifiAp;
 const unsigned int SCREEN_WIDTH = 128; // OLED display width, in pixels
 const unsigned int SCREEN_HEIGHT = 64; // OLED display height, in pixels
@@ -45,13 +49,13 @@ const unsigned int OLED_RESET = 4;    // Reset pin # (or -1 if sharing Arduino r
 
 
 // constantes pour la connexion wifi
-
+const char *NAME = "esp32";
 const char *SSID = "securewifi";
 const char *PASSWORD = "securiti";
 
 
-//MyServer *myServer = NULL;
-//WiFiManager wm;
+MyServer *myServer = NULL;
+WiFiManager wm;
 
 void setup() {
   Serial.begin(115200);
@@ -63,15 +67,6 @@ void setup() {
   digitalWrite(GPIOLedYellow, LOW);
   digitalWrite(GPIOLedGreen, LOW);
 
-  String ssIDRandom, PASSRandom;
-  String stringRandom;
-  stringRandom = get_random_string(4).c_str();
-  ssIDRandom = SSID;
-  ssIDRandom = ssIDRandom + stringRandom;
-  stringRandom = get_random_string(4).c_str();
-  PASSRandom = PASSWORD;
-  PASSRandom = PASSRandom + stringRandom;
-
   // initialisation de l'objet senseur de temperature
   dht = new MyDHT(GPIODHT, DHTTYPE);
   tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
@@ -82,25 +77,34 @@ void setup() {
   myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
   myOled->init();
   myOled->veilleDelay(30); //En secondes
-  myOledViewWifiAp = new MyOledViewWifiAp();
-  myOledViewWifiAp->setNomDuSysteme(ssIDRandom.c_str());
-  myOledViewWifiAp->setSsIDDuSysteme(ssIDRandom.c_str());
-  myOledViewWifiAp->setPassDuSysteme(PASSRandom.c_str());
 
-  myoledViewWorking = new MyOledViewWorking();
-  myoledViewWorking->init("1");
-  myoledViewWorkingOFF = new MyOledViewWorkingOFF();
-  myoledViewWorkingHEAT = new MyOledViewWorkingHEAT();
-  myOled->displayView(myoledViewWorkingHEAT);
+  myOledViewWorking = new MyOledViewWorking();
+  //myOledViewWorking->init("1");
+  myOledViewInitialisation = new MyOledViewInitialisation();
+  myOled->displayView(myOledViewInitialisation);
+  
   //myOled->displayView(myOledViewWifiAp);
+  delay(1000);
 
+  myOledViewWifiAp = new MyOledViewWifiAp();
+  myOledViewWifiAp->setNomDuSysteme(NAME);
+  myOledViewWifiAp->setSsIDDuSysteme(SSID);
+  myOledViewWifiAp->setPassDuSysteme(PASSWORD);
+  myOled->displayView(myOledViewWifiAp);
 
-  /*if (!wm.autoConnect(SSID, PASSWORD))
-  {Serial.println("Erreur de connexion.");}
-  else
-  {Serial.println("Connexion Établie.");}*/
+  wm.disconnect();
+  if (!wm.autoConnect(SSID)){
+    Serial.println("Erreur de connexion.");
+    myOledViewErrorWifiConnexion = new MyOledViewErrorWifiConnexion();
+    myOledViewErrorWifiConnexion->setNomDuSysteme(SSID);
+    myOled->displayView(myOledViewErrorWifiConnexion);
+  }
+  else{
+    Serial.println("Connexion Établie.");
+  }
   //myServer = new MyServer(80);
   //myServer->initAllRoutes();
+  delay(1000);
 }
 
 void loop() {
@@ -108,6 +112,13 @@ void loop() {
   Serial.print("temperature: ");
   Serial.println(tempAct);      // afficher la temperature dans la console
   
+  if(!FourOn){
+    myOledViewWorkingOFF = new MyOledViewWorkingOFF();
+  }
+  else{
+    myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();
+    myOled->displayView(myOledViewWorkingHEAT);
+  }
 
   delay(2000);//(rduct)
 }
