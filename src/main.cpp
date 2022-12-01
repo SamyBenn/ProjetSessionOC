@@ -29,7 +29,7 @@ bool ledOn = false; // pour garder en memoire l'etat de la led
 
 // variables et constantes pour dht22
 float tempAct=0; //pour la temperature actuelle
-char strTemperature[64] = ""; //pour convertir la temperature en char[] et l'afficher sur le oled
+char strTemp[64] = ""; //pour convertir la temperature en char[] et l'afficher sur le oled
 const unsigned int GPIODHT = 15; // GPIO utilisee par le DTH
 #define DHTTYPE DHT22           // Modele du DHT
 MyDHT *dht;
@@ -45,7 +45,6 @@ MyOledViewWifiAp *myOledViewWifiAp;
 const unsigned int SCREEN_WIDTH = 128; // OLED display width, in pixels
 const unsigned int SCREEN_HEIGHT = 64; // OLED display height, in pixels
 const unsigned int OLED_RESET = 4;    // Reset pin # (or -1 if sharing Arduino reset pin)
-
 
 
 // constantes pour la connexion wifi
@@ -84,7 +83,7 @@ void setup() {
   myOled->displayView(myOledViewInitialisation);
   
   //myOled->displayView(myOledViewWifiAp);
-  delay(1000);
+  delay(3000);
 
   myOledViewWifiAp = new MyOledViewWifiAp();
   myOledViewWifiAp->setNomDuSysteme(NAME);
@@ -104,19 +103,23 @@ void setup() {
   }
   //myServer = new MyServer(80);
   //myServer->initAllRoutes();
-  delay(1000);
+  myOledViewWorkingOFF = new MyOledViewWorkingOFF();
+  myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();
+  delay(3000);
 }
 
 void loop() {
   tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
   Serial.print("temperature: ");
   Serial.println(tempAct);      // afficher la temperature dans la console
+  sprintf(strTemp, "%g", tempAct);
   
   if(!FourOn){
-    myOledViewWorkingOFF = new MyOledViewWorkingOFF();
+    myOledViewWorkingOFF->setParams("temp", strTemp);
+    myOledViewWorkingOFF->setParams("ipAddr", "165.227.37.65");
+    myOled->displayView(myOledViewWorkingOFF);
   }
   else{
-    myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();
     myOled->displayView(myOledViewWorkingHEAT);
   }
 
