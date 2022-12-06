@@ -22,41 +22,41 @@ using namespace std;
 bool FourOn = false;
 
 // variables et constantes pour led
-#define GPIOLedRed 27   // GPIO utilisee par la led rouge
-#define GPIOLedYellow 14   // GPIO utilisee par la led jaune
-#define GPIOLedGreen 12   // GPIO utilisee par la led verte
-bool ledOn = false; // pour garder en memoire l'etat de la led
+#define GPIOLedRed 27    // GPIO utilisee par la led rouge
+#define GPIOLedYellow 14 // GPIO utilisee par la led jaune
+#define GPIOLedGreen 12  // GPIO utilisee par la led verte
+bool ledOn = false;      // pour garder en memoire l'etat de la led
 
 // variables et constantes pour dht22
-float tempAct=0; //pour la temperature actuelle
-char strTemp[64] = ""; //pour convertir la temperature en char[] et l'afficher sur le oled
+float tempAct = 0;               // pour la temperature actuelle
+char strTemp[64] = "";           // pour convertir la temperature en char[] et l'afficher sur le oled
 const unsigned int GPIODHT = 15; // GPIO utilisee par le DTH
-#define DHTTYPE DHT22           // Modele du DHT
+#define DHTTYPE DHT22            // Modele du DHT
 MyDHT *dht;
 
 // Oled
 MyOled *myOled;
 MyOledViewWorking *myOledViewWorking;
-MyOledViewErrorWifiConnexion * myOledViewErrorWifiConnexion;
+MyOledViewErrorWifiConnexion *myOledViewErrorWifiConnexion;
 MyOledViewInitialisation *myOledViewInitialisation;
 MyOledViewWorkingOFF *myOledViewWorkingOFF;
+MyOledViewWorkingCOLD *myOledViewWorkingCOLD;
 MyOledViewWorkingHEAT *myOledViewWorkingHEAT;
 MyOledViewWifiAp *myOledViewWifiAp;
 const unsigned int SCREEN_WIDTH = 128; // OLED display width, in pixels
 const unsigned int SCREEN_HEIGHT = 64; // OLED display height, in pixels
-const unsigned int OLED_RESET = 4;    // Reset pin # (or -1 if sharing Arduino reset pin)
-
+const unsigned int OLED_RESET = 4;     // Reset pin # (or -1 if sharing Arduino reset pin)
 
 // constantes pour la connexion wifi
 const char *NAME = "esp32";
 const char *SSID = "securewifi";
 const char *PASSWORD = "securiti";
 
-
 MyServer *myServer = NULL;
 WiFiManager wm;
 
-void setup() {
+void setup()
+{
   Serial.begin(115200);
   // initialisation de la pin de la led et s'assurer qu'elle est fermee au demarrage
   pinMode(GPIOLedRed, OUTPUT);
@@ -70,19 +70,21 @@ void setup() {
   dht = new MyDHT(GPIODHT, DHTTYPE);
   tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
   Serial.print("temperature: ");
-  Serial.println(tempAct);      // afficher la temperature dans la console
+  Serial.println(tempAct); // afficher la temperature dans la console
 
   // Oled
   myOled = new MyOled(&Wire, OLED_RESET, SCREEN_HEIGHT, SCREEN_WIDTH);
   myOled->init();
-  myOled->veilleDelay(30); //En secondes
+  myOled->veilleDelay(30); // En secondes
 
   myOledViewWorking = new MyOledViewWorking();
-  //myOledViewWorking->init("1");
+  /*myOledViewWorking->setParams("nomSystem", "SAC System");
+  myOledViewWorking->setParams("idSystem", "01436");
+  myOledViewWorking->setParams("ipSystem", "165.227.37.65");*/
+  // myOledViewWorking->init("1");
   myOledViewInitialisation = new MyOledViewInitialisation();
   myOled->displayView(myOledViewInitialisation);
-  
-  //myOled->displayView(myOledViewWifiAp);
+
   delay(3000);
 
   myOledViewWifiAp = new MyOledViewWifiAp();
@@ -92,36 +94,50 @@ void setup() {
   myOled->displayView(myOledViewWifiAp);
 
   wm.disconnect();
-  if (!wm.autoConnect(SSID)){
+  if (!wm.autoConnect(SSID))
+  {
     Serial.println("Erreur de connexion.");
     myOledViewErrorWifiConnexion = new MyOledViewErrorWifiConnexion();
     myOledViewErrorWifiConnexion->setNomDuSysteme(SSID);
     myOled->displayView(myOledViewErrorWifiConnexion);
   }
-  else{
+  else
+  {
     Serial.println("Connexion Établie.");
   }
-  //myServer = new MyServer(80);
-  //myServer->initAllRoutes();
+  // myServer = new MyServer(80);
+  // myServer->initAllRoutes();
   myOledViewWorkingOFF = new MyOledViewWorkingOFF();
+  myOledViewWorkingCOLD = new MyOledViewWorkingCOLD();
   myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();
   delay(3000);
 }
 
-void loop() {
+void loop()
+{
   tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
   Serial.print("temperature: ");
-  Serial.println(tempAct);      // afficher la temperature dans la console
+  Serial.println(tempAct); // afficher la temperature dans la console
   sprintf(strTemp, "%g", tempAct);
-  
-  if(!FourOn){
+  myOledViewWorking->setParams("temp", strTemp);
+
+  if (!FourOn){
+    myOledViewWorkingOFF->setParams("nomSystem", "SAC System");
+    myOledViewWorkingOFF->setParams("idSystem", "01436");
+    myOledViewWorkingOFF->setParams("ipSystem", "165.227.37.65");
     myOledViewWorkingOFF->setParams("temp", strTemp);
-    myOledViewWorkingOFF->setParams("ipAddr", "165.227.37.65");
     myOled->displayView(myOledViewWorkingOFF);
+    delay(2000);
+    myOledViewWorkingCOLD->setParams("nomSystem", "SAC System");
+    myOledViewWorkingCOLD->setParams("idSystem", "01436");
+    myOledViewWorkingCOLD->setParams("ipSystem", "165.227.37.65");
+    myOledViewWorkingCOLD->setParams("temp", strTemp);
+    myOled->displayView(myOledViewWorkingCOLD);
   }
-  else{
+  else
+  {
     myOled->displayView(myOledViewWorkingHEAT);
   }
 
-  delay(2000);//(rduct)
+  delay(2000); // reduct
 }

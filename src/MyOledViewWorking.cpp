@@ -38,20 +38,21 @@ void MyOledViewWorking::update(Adafruit_SSD1306 *adafruit){
     }
 
 void MyOledViewWorking::display( Adafruit_SSD1306 *adafruit) {
-    adafruit->setTextColor(WHITE);
-
     adafruit->clearDisplay();
+
     adafruit->setTextSize(2);
     adafruit->setCursor(0, 0);
-    adafruit->print(getTag("nomDuSysteme").c_str());
+    adafruit->print(getTag("nomSystem").c_str());
 
     adafruit->setTextSize(1);
     adafruit->setCursor(0, 20);
-    adafruit->print("Id: ");
-    adafruit->print(getTag("idDuSysteme").c_str());
-    
-    adafruit->setCursor(40, 50);
-    adafruit->print(getTag("ipDuSysteme").c_str());
+    adafruit->print("ID: ");
+    adafruit->setCursor(20, 20);
+    adafruit->print(getTag("idSystem").c_str());
+
+    adafruit->setTextSize(1);
+    adafruit->setCursor(40,50);
+    adafruit->print(getTag("ipSystem").c_str());
 
     adafruit->display();
     }
