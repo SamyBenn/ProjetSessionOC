@@ -22,15 +22,17 @@ using namespace std;
 bool FourOn = false;
 
 // variables et constantes pour led
-#define GPIOLedRed 27    // GPIO utilisee par la led rouge
-#define GPIOLedYellow 14 // GPIO utilisee par la led jaune
-#define GPIOLedGreen 12  // GPIO utilisee par la led verte
+#define GPIOLedWhite 6
+#define GPIOLedBlue 8
+#define GPIOLedGreen 2  // GPIO utilisee par la led verte
+#define GPIOLedYellow 4 // GPIO utilisee par la led jaune
+#define GPIOLedRed 17    // GPIO utilisee par la led rouge
 bool ledOn = false;      // pour garder en memoire l'etat de la led
 
 // variables et constantes pour dht22
 float tempAct = 0;               // pour la temperature actuelle
 char strTemp[64] = "";           // pour convertir la temperature en char[] et l'afficher sur le oled
-const unsigned int GPIODHT = 15; // GPIO utilisee par le DTH
+const unsigned int GPIODHT = 3; // GPIO utilisee par le DTH
 #define DHTTYPE DHT22            // Modele du DHT
 MyDHT *dht;
 
@@ -55,16 +57,60 @@ const char *PASSWORD = "securiti";
 MyServer *myServer = NULL;
 WiFiManager wm;
 
+void displayViewAP()
+{
+  myOledViewErrorWifiConnexion = new MyOledViewErrorWifiConnexion();
+  myOledViewErrorWifiConnexion->setNomDuSysteme(SSID);
+  myOled->displayView(myOledViewErrorWifiConnexion);
+}
+
+void displayViewOFF()
+{
+  myOledViewWorkingOFF->setParams("nomSystem", "SAC System");
+  myOledViewWorkingOFF->setParams("idSystem", "01436");
+  myOledViewWorkingOFF->setParams("ipSystem", "165.227.37.65");
+  myOledViewWorkingOFF->setParams("temp", strTemp);
+  myOled->displayView(myOledViewWorkingOFF);
+  digitalWrite(GPIOLedGreen, LOW);
+  digitalWrite(GPIOLedYellow, HIGH);
+  digitalWrite(GPIOLedRed, LOW);
+}
+
+void displayViewCOLD()
+{
+  myOledViewWorkingCOLD->setParams("nomSystem", "SAC System");
+  myOledViewWorkingCOLD->setParams("idSystem", "01436");
+  myOledViewWorkingCOLD->setParams("ipSystem", "165.227.37.65");
+  myOledViewWorkingCOLD->setParams("temp", strTemp);
+  myOled->displayView(myOledViewWorkingCOLD);
+  digitalWrite(GPIOLedGreen, HIGH);
+  digitalWrite(GPIOLedYellow, LOW);
+  digitalWrite(GPIOLedRed, LOW);
+}
+
+void displayViewHEAT()
+{
+  myOledViewWorkingHEAT->setParams("nomSystem", "SAC System");
+  myOledViewWorkingHEAT->setParams("idSystem", "01436");
+  myOledViewWorkingHEAT->setParams("ipSystem", "165.227.37.65");
+  myOledViewWorkingHEAT->setParams("temp", strTemp);
+  myOled->displayView(myOledViewWorkingHEAT);
+  digitalWrite(GPIOLedGreen, LOW);
+  digitalWrite(GPIOLedYellow, LOW);
+  digitalWrite(GPIOLedRed, HIGH);
+}
+
+
 void setup()
 {
   Serial.begin(115200);
   // initialisation de la pin de la led et s'assurer qu'elle est fermee au demarrage
-  pinMode(GPIOLedRed, OUTPUT);
-  pinMode(GPIOLedYellow, OUTPUT);
   pinMode(GPIOLedGreen, OUTPUT);
-  digitalWrite(GPIOLedRed, LOW);
-  digitalWrite(GPIOLedYellow, LOW);
+  pinMode(GPIOLedYellow, OUTPUT);
+  pinMode(GPIOLedRed, OUTPUT);
   digitalWrite(GPIOLedGreen, LOW);
+  digitalWrite(GPIOLedYellow, LOW);
+  digitalWrite(GPIOLedRed, LOW);
 
   // initialisation de l'objet senseur de temperature
   dht = new MyDHT(GPIODHT, DHTTYPE);
@@ -78,10 +124,6 @@ void setup()
   myOled->veilleDelay(30); // En secondes
 
   myOledViewWorking = new MyOledViewWorking();
-  /*myOledViewWorking->setParams("nomSystem", "SAC System");
-  myOledViewWorking->setParams("idSystem", "01436");
-  myOledViewWorking->setParams("ipSystem", "165.227.37.65");*/
-  // myOledViewWorking->init("1");
   myOledViewInitialisation = new MyOledViewInitialisation();
   myOled->displayView(myOledViewInitialisation);
 
@@ -91,15 +133,13 @@ void setup()
   myOledViewWifiAp->setNomDuSysteme(NAME);
   myOledViewWifiAp->setSsIDDuSysteme(SSID);
   myOledViewWifiAp->setPassDuSysteme(PASSWORD);
-  myOled->displayView(myOledViewWifiAp);
+  //myOled->displayView(myOledViewWifiAp);
 
   wm.disconnect();
   if (!wm.autoConnect(SSID))
   {
     Serial.println("Erreur de connexion.");
-    myOledViewErrorWifiConnexion = new MyOledViewErrorWifiConnexion();
-    myOledViewErrorWifiConnexion->setNomDuSysteme(SSID);
-    myOled->displayView(myOledViewErrorWifiConnexion);
+    displayViewAP();
   }
   else
   {
@@ -121,23 +161,19 @@ void loop()
   sprintf(strTemp, "%g", tempAct);
   myOledViewWorking->setParams("temp", strTemp);
 
-  if (!FourOn){
-    myOledViewWorkingOFF->setParams("nomSystem", "SAC System");
-    myOledViewWorkingOFF->setParams("idSystem", "01436");
-    myOledViewWorkingOFF->setParams("ipSystem", "165.227.37.65");
-    myOledViewWorkingOFF->setParams("temp", strTemp);
-    myOled->displayView(myOledViewWorkingOFF);
+  if (!FourOn)
+  {
+    displayViewOFF();
     delay(2000);
-    myOledViewWorkingCOLD->setParams("nomSystem", "SAC System");
-    myOledViewWorkingCOLD->setParams("idSystem", "01436");
-    myOledViewWorkingCOLD->setParams("ipSystem", "165.227.37.65");
-    myOledViewWorkingCOLD->setParams("temp", strTemp);
-    myOled->displayView(myOledViewWorkingCOLD);
+    displayViewCOLD();
+    delay(2000);
+    displayViewHEAT();
   }
   else
   {
-    myOled->displayView(myOledViewWorkingHEAT);
+    //myOled->displayView(myOledViewWorkingHEAT);
   }
 
   delay(2000); // reduct
 }
+
