@@ -54,6 +54,9 @@ const char *NAME = "esp32";
 const char *SSID = "securewifi";
 const char *PASSWORD = "securiti";
 
+// serveur api 
+const char* serverName = "http://165.227.37.65:3000/bois";
+
 MyServer *myServer = NULL;
 WiFiManager wm;
 
@@ -100,6 +103,45 @@ void displayViewHEAT()
   digitalWrite(GPIOLedRed, HIGH);
 }
 
+int drying = 0;
+int dryingComp = 0;
+int tempMin = 0;
+int compteur = 0;
+bool isDrying = false;
+// fonction statique qui permet aux objets d'envoyer des messages (callBack)
+//   arg0 : Action
+//  arg1 ... : Parametres
+std::string CallBackMessageListener(string message)
+{
+  while (replaceAll(message, std::string("  "), std::string(" ")));
+
+    string actionToDo = getValue(message, ' ', 0);
+    string arg1 = getValue(message, ' ', 1);
+    string arg2 = getValue(message, ' ', 2);
+    string arg3 = getValue(message, ' ', 3);
+    string arg4 = getValue(message, ' ', 4);
+    string arg5 = getValue(message, ' ', 5);
+    string arg6 = getValue(message, ' ', 6);
+    string arg7 = getValue(message, ' ', 7);
+    string arg8 = getValue(message, ' ', 8);
+    string arg9 = getValue(message, ' ', 9);
+    string arg10 = getValue(message, ' ', 10);
+ 
+  std::string tempDuFour = strTemp; //Lire le senseur de température
+  if (string(actionToDo.c_str()).compare(string("askTempFour")) == 0) {
+  return(tempDuFour.c_str()); }
+
+  if (string(actionToDo.c_str()).compare(string("button")) == 0) 
+  {
+        if(string(arg1.c_str()).compare(string("envoyerInfo")) == 0) 
+        {
+            dryingComp = atoi(arg2.c_str());
+            tempMin = atoi(arg3.c_str());
+            FourOn = true;
+            return(String("Ok").c_str());
+        }
+  }
+}
 
 void setup()
 {
@@ -136,7 +178,7 @@ void setup()
   //myOled->displayView(myOledViewWifiAp);
 
   wm.disconnect();
-  if (!wm.autoConnect(SSID))
+  if (!wm.autoConnect(SSID, PASSWORD))
   {
     Serial.println("Erreur de connexion.");
     displayViewAP();
@@ -150,6 +192,9 @@ void setup()
   myOledViewWorkingOFF = new MyOledViewWorkingOFF();
   myOledViewWorkingCOLD = new MyOledViewWorkingCOLD();
   myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();
+  myServer = new MyServer(80);
+  myServer->initAllRoutes();
+  myServer->initCallback(&CallBackMessageListener);
   delay(3000);
 }
 
@@ -158,22 +203,53 @@ void loop()
   tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
   Serial.print("temperature: ");
   Serial.println(tempAct); // afficher la temperature dans la console
+            Serial.print(dryingComp);
+            Serial.println(tempMin);
+            Serial.println(FourOn);
   sprintf(strTemp, "%g", tempAct);
   myOledViewWorking->setParams("temp", strTemp);
 
-  if (!FourOn)
+  if(dryingComp == 0){ FourOn = false; }
+
+  if (FourOn)
   {
-    displayViewOFF();
-    delay(2000);
-    displayViewCOLD();
-    delay(2000);
+    if(tempAct >= tempMin){
     displayViewHEAT();
+    dryingComp --;
+    }else{
+    displayViewCOLD();
+    }
   }
   else
   {
-    //myOled->displayView(myOledViewWorkingHEAT);
+    displayViewOFF();
   }
 
-  delay(2000); // reduct
+  delay(1000); // reduct
 }
 
+String httpGETRequest(const char* serverName) {
+  HTTPClient http;
+    
+  // Your Domain name with URL path or IP address with path
+  http.begin(serverName);
+  
+  // Send HTTP POST request
+  int httpResponseCode = http.GET();
+  
+  String payload = "{}"; 
+  
+  if (httpResponseCode>0) {
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+    payload = http.getString();
+  }
+  else {
+    Serial.print("Error code: ");
+    Serial.println(httpResponseCode);
+  }
+  // Free resources
+  http.end();
+
+  return payload;
+}
