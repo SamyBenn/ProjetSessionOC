@@ -55,7 +55,7 @@ const char *SSID = "securewifi";
 const char *PASSWORD = "securiti";
 
 // serveur api 
-const char* serverName = "http://165.227.37.65:3000/bois";
+const char* serverName = "http://165.227.37.65:3000/api/";
 
 MyServer *myServer = NULL;
 WiFiManager wm;
@@ -107,7 +107,7 @@ void displayViewHEAT()
 int drying = 0;
 int dryingComp = 0;
 int tempMin = 0;
-int compteur = 0;
+int compteur = 3;
 // fonction statique qui permet aux objets d'envoyer des messages (callBack)
 //   arg0 : Action
 //  arg1 ... : Parametres
@@ -136,13 +136,23 @@ std::string CallBackMessageListener(string message)
   if (string(actionToDo.c_str()).compare(string("askTempsCompteur")) == 0) {
   return(tempsCompteur.c_str()); }
 
-  if (string(actionToDo.c_str()).compare(string("button")) == 0) 
+if (string(actionToDo.c_str()).compare(string("select")) == 0) 
   {
-        if(string(arg1.c_str()).compare(string("envoyerInfo")) == 0) 
+    if(string(arg1.c_str()).compare(string("envoyerInfo")) == 0) 
         {
             compteur = atoi(arg2.c_str());
             tempMin = atoi(arg3.c_str());
-            FourOn = true;
+            FourOn = false;
+            Serial.println("revived Info");
+            return(String("Ok").c_str());
+        }
+
+  }
+  if (string(actionToDo.c_str()).compare(string("button")) == 0) 
+  {
+        if(string(arg1.c_str()).compare(string("demarrer"))==0){
+          FourOn=true;
+          Serial.println("recived GO");
             return(String("Ok").c_str());
         }
   }
@@ -200,6 +210,7 @@ void loop()
   sprintf(strCompteur, "%d", compteur);
   myOledViewWorking->setParams("temp", strTemp);
 
+Serial.println("change");
   if(compteur == 0){ FourOn = false; }
 
   if (FourOn)

@@ -73,7 +73,8 @@ function getFromESP_getAllWoodDetail(selectedObject)
             document.getElementById("tempMin").innerHTML = responseParsed.tempMin + " °C";
             document.getElementById("tempMinCuisson").innerHTML = "(min:"+responseParsed.tempMin + " °C)";
         }
-            document.getElementById("Demarrer").addEventListener("click", four);
+        document.getElementById("Demarrer").addEventListener("click", demarrerFour);
+        envoyerInfo();
     }
 
     xhttp.open("GET", "getAllWoodDetail?name=" + params, true);
@@ -81,7 +82,14 @@ function getFromESP_getAllWoodDetail(selectedObject)
     
 }
 
-function four(){
+
+function demarrerFour(){
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "demarrer",true);
+    xhttp.send();
+}
+
+function envoyerInfo(){
     var xhttp = new XMLHttpRequest();
     xhttp.open("GET", "envoyerInfo?drying="+boisSelectionner.drying+"&tempMin="+boisSelectionner.tempMin, true);
     xhttp.send();

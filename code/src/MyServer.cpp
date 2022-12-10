@@ -69,7 +69,7 @@ void MyServer::initAllRoutes()
     this->on("/getAllWood", HTTP_GET, [](AsyncWebServerRequest *request) 
     {
         HTTPClient http;
-        String apiRestAddress = "http://165.227.37.65:3000/woods";
+        String apiRestAddress = "http://165.227.37.65:3000/api/woods";
         http.begin(apiRestAddress);
         http.GET();
         String response = http.getString();
@@ -86,7 +86,7 @@ void MyServer::initAllRoutes()
 
             AsyncWebParameter* p = request->getParam("name");
             HTTPClient http;
-            String apiRestAddress = "http://165.227.37.65:3000/woodinfo/" + p->value();
+            String apiRestAddress = "http://165.227.37.65:3000/api/woodinfo/" + p->value();
             String response = "Error";
             bool beginResult = http.begin(apiRestAddress);
             if(!beginResult){
@@ -112,10 +112,19 @@ void MyServer::initAllRoutes()
         AsyncResponseStream *response = request->beginResponseStream("text/html"); //Reception de la réponse
         AsyncWebParameter* drying = request->getParam(0); // Récupération de la valeur du premier paramètre de notre requête GET
         AsyncWebParameter* tempMin = request->getParam(1); // Récupération de la valeur du premier paramètre de notre requête GET
-        String sendTo = "button envoyerInfo ";
+        String sendTo = "select envoyerInfo ";
         String actionToSend = String(sendTo + drying->value() + " " + tempMin->value());
         if (ptrToCallBackFunction) (*ptrToCallBackFunction)(actionToSend.c_str());
         request->send(200, "text/plain", "envoyerInfo");
+    });
+
+    this->on("/demarrer", HTTP_GET, [](AsyncWebServerRequest *request)
+    {
+        AsyncResponseStream *response = request->beginResponseStream("text/html"); //Reception de la réponse
+        String sendTo = "button demarrer";
+        String actionToSend = String(sendTo);
+        if (ptrToCallBackFunction) (*ptrToCallBackFunction)(actionToSend.c_str());
+        request->send(200, "text/plain", "demarrer");
     });
         this->begin();
 };
