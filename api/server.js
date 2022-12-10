@@ -12,7 +12,7 @@ next()
 
 app.get("/", (req, res) => { res.send("do that again but this time try asking for some data, /api/woods for all woods list, /api/woodInfo/(insert name) for information about that wood.")})
 
-app.get("/woods", (req, res) => {
+app.get("/api/woods", (req, res) => {
   mongoClient.connect(url, function(err, db) {
     if (err) throw err
     var dbo = db.db("meublesDube")
@@ -25,7 +25,7 @@ app.get("/woods", (req, res) => {
   })
 })
 
-app.get("/woodsFull", (req, res) => {
+app.get("/api/woodsFull", (req, res) => {
   mongoClient.connect(url, function(err, db) {
     if (err) throw err
     var dbo = db.db("meublesDube")
@@ -38,7 +38,7 @@ app.get("/woodsFull", (req, res) => {
   })
 })
 
-app.get("/woodInfo/:name", (req, res) => {
+app.get("/api/woodInfo/:name", (req, res) => {
   mongoClient.connect(url, function(err, db) {
     if (err) throw err
     var wood = req.params.name

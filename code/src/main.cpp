@@ -1,3 +1,32 @@
+/**
+    @file main.cpp
+    @author Samy Bennabi
+    @version 1.0 17/03/21  
+    
+    Historique des versions   
+                            Versions    Date      Auteur      Description
+                            1.0         24/11/22  Samy        Première version du projet
+                            
+    platform = espressif32
+    board = esp32doit-devkit-v1
+    framework = arduino
+    lib_deps = 
+        adafruit/DHT sensor library @ ^1.4.4
+    adafruit/Adafruit GFX Library @ ^1.10.1
+    adafruit/Adafruit SSD1306 @ ^2.4.0
+    adafruit/Adafruit NeoPixel @ ^1.7.0
+    ottowinter/ESPAsyncWebServer-esphome@^3.0.0
+	bblanchon/ArduinoJson@^6.19.4
+	esphome/AsyncTCP-esphome@^2.0.0
+    Autres librairies (à copier dans le répertoire lib)
+        MyLib
+        WifiManager
+    Résolution 128 x 64
+            Protocole I2C, Adresse : 0x3C (défaut)
+            GPIO21 : SDA
+            GPIO22 : SCL
+
+**/
 #include <iostream>
 #include <string>
 #include <Arduino.h>
@@ -19,11 +48,8 @@ using namespace std;
 #include "MyOledViewWorkingOFF.h"
 #include "MyServer.h"
 
-bool FourOn = false;
 
 // variables et constantes pour led
-#define GPIOLedWhite 6
-#define GPIOLedBlue 8
 #define GPIOLedGreen 2  // GPIO utilisee par la led verte
 #define GPIOLedYellow 4 // GPIO utilisee par la led jaune
 #define GPIOLedRed 17    // GPIO utilisee par la led rouge
@@ -60,6 +86,7 @@ const char* serverName = "http://165.227.37.65:3000/api/";
 MyServer *myServer = NULL;
 WiFiManager wm;
 
+// fonctions pour gerer l'affichage du OLED
 void displayViewAP()
 {
   myOledViewWifiAp->setNomDuSysteme(wm.getWiFiHostname().c_str());
@@ -104,10 +131,9 @@ void displayViewHEAT()
   digitalWrite(GPIOLedRed, HIGH);
 }
 
-int drying = 0;
-int dryingComp = 0;
+bool FourOn = false; // pour garder en memoire l'etat du four
 int tempMin = 0;
-int compteur = 3;
+int compteur = 0;
 // fonction statique qui permet aux objets d'envoyer des messages (callBack)
 //   arg0 : Action
 //  arg1 ... : Parametres
@@ -184,6 +210,7 @@ void setup()
   delay(3000);
 
 
+// initialisation du wifi manager
   wm.disconnect();
   if (!wm.autoConnect(SSID, PASSWORD))
   { Serial.println("Erreur de connexion.");}
@@ -192,8 +219,7 @@ void setup()
     myOledViewWifiAp = new MyOledViewWifiAp();
     displayViewAP();
   }
-  // myServer = new MyServer(80);
-  // myServer->initAllRoutes();
+
   myOledViewWorkingOFF = new MyOledViewWorkingOFF();
   myOledViewWorkingCOLD = new MyOledViewWorkingCOLD();
   myOledViewWorkingHEAT = new MyOledViewWorkingHEAT();
@@ -206,21 +232,23 @@ void setup()
 void loop()
 {
   tempAct = dht->getTemp(); // obtenir la temperature et la stocker dans la variable temp
+
+  // convertissage pour utilisation dans la vue
   sprintf(strTemp, "%g", tempAct);
   sprintf(strCompteur, "%d", compteur);
+
   myOledViewWorking->setParams("temp", strTemp);
 
-Serial.println("change");
   if(compteur == 0){ FourOn = false; }
 
-  if (FourOn)
+  if(!FourOn) { displayViewOFF(); }
+  if (FourOn && tempAct >= tempMin)
   {
-    if(tempAct >= tempMin){
     displayViewHEAT();
     compteur --;
-    }else{displayViewCOLD(); }
   }
-  else { displayViewOFF(); }
+
+  if(FourOn && tempAct < tempMin){displayViewCOLD(); }
 
   delay(1000); // reduct
 }

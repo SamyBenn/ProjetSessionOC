@@ -1,0 +1,30 @@
+Librairies :
+
+lipdeps (platformio.ini)
+	adafruit/DHT sensor library @ ^1.4.4
+    adafruit/Adafruit GFX Library @ ^1.10.1
+    adafruit/Adafruit SSD1306 @ ^2.4.0
+    adafruit/Adafruit NeoPixel @ ^1.7.0
+    ottowinter/ESPAsyncWebServer-esphome@^3.0.0
+	bblanchon/ArduinoJson@^6.19.4
+	esphome/AsyncTCP-esphome@^2.0.0
+	
+Locales(incluses dans le dossier lib)
+	MILIB
+	WifiManager
+	
+	
+Materiel:
+	ESP32
+	Ecran Oled 128x64px (protocole I2C)
+	DHT22 (senseur temperature)
+	LEDs (vert, jaune rouge)
+	Resistances (220, 100, 100) respectivement pour les leds
+	
+	
+Fonctionnement:
+
+au demarrage, le systeme cherche une conneion eifi connue,
+s'il y en a pas il se met en AP (access point et ca sera a vois de configuerer le wifi)
+
+le systeme vous fournira une adresse ip et dessus vous aurer la page principale avec tous les controles.
